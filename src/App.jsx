@@ -1,19 +1,21 @@
 import {Route, Routes} from 'react-router-dom';
 import {useEffect} from 'react';
-import {useUser} from './UserContext';
+
 
 import './App.css'
 
-import Home from './Home';
-import PrivateRoute from './PrivateRoute';
-import Login from "./login/Login.jsx";
+import Home from './pages/home/Home.jsx';
+import PrivateRoute from './components/PrivateRoute/PrivateRoute.jsx';
+import Login from "./pages/login/Login.jsx";
+import {useUser} from "./hooks/useUser.js";
+import Layout from "./layout/Layout.jsx";
 
 function App() {
     const {setUser, setLoading} = useUser();
 
 
     useEffect(() => {
-        fetch('http://localhost:8080/me', {
+        fetch('/api/me', {
             credentials: 'include',
         })
             .then(res => {
@@ -33,15 +35,17 @@ function App() {
 
     return (
         <Routes>
-            <Route path="/login" element={<Login/>}/>
-            <Route
-                path="/"
-                element={
-                    <PrivateRoute>
-                        <Home/>
-                    </PrivateRoute>
-                }
-            />
+            <Route path="/" element={<Layout/>}>
+                <Route
+                    index
+                    element={
+                        <PrivateRoute>
+                            <Home/>
+                        </PrivateRoute>
+                    }
+                />
+                <Route path="login" element={<Login/>}/>
+            </Route>
         </Routes>
     );
 }

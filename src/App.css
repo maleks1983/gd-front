@@ -1,0 +1,8 @@
+.no-focus-border:focus {
+    box-shadow: none;
+    border-color: transparent;
+}
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}

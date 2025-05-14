@@ -1,5 +1,6 @@
-import {useUser} from './UserContext';
+
 import {Navigate} from 'react-router-dom';
+import {useUser} from "../../hooks/useUser.js";
 
 function PrivateRoute({ children }) {
     const { user, loading } = useUser();

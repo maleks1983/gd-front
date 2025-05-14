@@ -1,8 +1,6 @@
-
 import { useNavigate } from 'react-router-dom';
-import {useUser} from "../UserContext.jsx";
-
-
+import { useUser } from "../../hooks/useUser.js";
+import { loginUser, fetchCurrentUser } from "../../services/authService.js";
 
 function Login() {
     const { setUser } = useUser();
@@ -11,33 +9,23 @@ function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const formData = new FormData();
-        formData.append('username', e.target.tel.value); // ⚠️ обов’язково "username"
-        formData.append('password', e.target.password.value);
+        const tel = e.target.tel.value;
+        const password = e.target.password.value;
 
-        const loginRes = await fetch('http://localhost:8080/login', {
-            method: 'POST',
-            body: formData,
-            credentials: 'include', // важливо для cookie-сесії
-        });
+        try {
+            const loginRes = await loginUser({ tel, password });
 
-        if (loginRes.ok) {
-            const meRes = await fetch('http://localhost:8080/me', {
-                credentials: 'include',
-                headers: {
-                    Accept: 'application/json',
-                },
-            });
-
-            if (meRes.ok) {
-                const user = await meRes.json();
-                setUser(user);
-                navigate('/');
-            } else {
-                alert('Не вдалося отримати користувача');
+            if (!loginRes.ok) {
+                alert("Невірний телефон або пароль");
+                return;
             }
-        } else {
-            alert('Невірний телефон або пароль');
+
+            const user = await fetchCurrentUser();
+            setUser(user);
+            navigate('/');
+
+        } catch (error) {
+            alert(error.message);
         }
     };
 
@@ -63,7 +51,7 @@ function Login() {
                     </div>
                     <div className="mb-3">
                         <label htmlFor="password" className="form-label">Пароль</label>
-                        <input type="password" className="form-control" id="password" name="password" required/>
+                        <input type="password" className="form-control" id="password" name="password" required />
                     </div>
                     <button type="submit" className="btn btn-primary w-100">Увійти</button>
                 </form>

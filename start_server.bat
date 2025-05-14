@@ -2,10 +2,12 @@
 cd /d "%~dp0"
 
 echo Starting Vite preview...
+
 start "" cmd /k "npm run preview"
+timeout /t 3 >nul
 
 timeout /t 3 >nul
-start "Backend" "java" -jar "D:\IdeaProjects\dg-backend\target\dg-backend-0.0.1-SNAPSHOT.jar"
+start "" "java" -jar "D:\IdeaProjects\dg-backend\target\dg-backend-0.0.1-SNAPSHOT.jar"
 
 timeout /t 3 >nul
 
