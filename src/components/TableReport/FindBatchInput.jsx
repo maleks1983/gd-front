@@ -1,8 +1,27 @@
 import { useEffect, useState } from "react";
+import * as batchService from "../../services/api/batchService.js";
 
-function FindBatchInput({ searchSerial, setSearchSerial, handleSerialSearch, handleClearSearch }) {
+function FindBatchInput({ onSearchResult }) {
     const [hasSearched, setHasSearched] = useState(false);
+    const [searchSerial, setSearchSerial] = useState("");
+    const [placeholder, setPlaceholder] = useState("Пошук по серійному");
 
+    // Адаптивний placeholder залежно від ширини екрана
+    useEffect(() => {
+        const updatePlaceholder = () => {
+            if (window.innerWidth < 576) {
+                setPlaceholder("Пошук...");
+            } else {
+                setPlaceholder("Пошук по серійному");
+            }
+        };
+
+        updatePlaceholder(); // при першому рендері
+        window.addEventListener("resize", updatePlaceholder);
+        return () => window.removeEventListener("resize", updatePlaceholder);
+    }, []);
+
+    // Обробка змін поля
     const handleSerialChange = (e) => {
         const digitsOnly = e.target.value.replace(/\D/g, "");
         setSearchSerial(digitsOnly);
@@ -11,26 +30,55 @@ function FindBatchInput({ searchSerial, setSearchSerial, handleSerialSearch, han
         }
     };
 
+    // Пошук автоматично при введенні 6 цифр
     useEffect(() => {
-        if (searchSerial.length === 6 && !hasSearched) {
-            handleSerialSearch();
+        const search = async () => {
+            if (searchSerial.length === 6 && !hasSearched) {
+                try {
+                    const batch = await batchService.getBatchByProductSerial(searchSerial);
+                    onSearchResult?.(batch);
+                } catch (err) {
+                    console.warn("Не знайдено партію", err);
+                    onSearchResult?.(null);
+                }
+                setHasSearched(true);
+            }
+        };
+        search();
+    }, [searchSerial, hasSearched, onSearchResult]);
+
+    const handleManualSearch = async () => {
+        if (searchSerial.length === 6) {
+            try {
+                const batch = await batchService.getBatchByProductSerial(searchSerial);
+                onSearchResult?.(batch);
+            } catch (err) {
+                console.warn("Не знайдено партію", err);
+                onSearchResult?.(null);
+            }
             setHasSearched(true);
         }
-    }, [searchSerial, hasSearched, handleSerialSearch]);
+    };
+
+    const handleClearClick = () => {
+        setSearchSerial("");
+        setHasSearched(false);
+        onSearchResult?.(null);
+    };
 
     const showClearButton = searchSerial.length > 0;
 
     return (
-        <div className="mb-3 position-relative ms-auto me-0" style={{ width: "fit-content" }}>
+        <div className="position-relative ms-auto me-3">
             <div className="input-group">
                 <span className="input-group-text">DG</span>
                 <input
                     type="text"
-                    className="form-control pe-4 rounded-end-2 z-1 no-focus-border"
-                    placeholder="Пошук по серійному"
+                    className="form-control pe-4 rounded-end-2 z-1"
+                    placeholder={placeholder}
                     value={searchSerial}
                     onChange={handleSerialChange}
-                    style={{ width: '30ch' }}
+                    style={{ maxWidth: "30ch" }}
                     maxLength={6}
                     inputMode="numeric"
                     title="Серійний номер має містити рівно 6 цифр"
@@ -39,24 +87,20 @@ function FindBatchInput({ searchSerial, setSearchSerial, handleSerialSearch, han
 
                 {showClearButton ? (
                     <button
-                        className="btn btn-close position-absolute top-0 mt-2  me-2 end-0 z-2"
-                        onClick={handleClearSearch}
+                        className="btn btn-close position-absolute top-0 mt-2 me-2 end-0 z-2"
+                        onClick={handleClearClick}
+                        type="button"
                     />
                 ) : (
                     <button
                         className="btn btn-lg position-absolute top-0 p-0 mt-1 me-2 end-0 z-2"
-                        onClick={() => {
-                            if (searchSerial.length === 6) {
-                                handleSerialSearch();
-                            }
-                        }}
+                        onClick={handleManualSearch}
                         type="button"
                     >
                         <i className="bi bi-search"></i>
                     </button>
                 )}
             </div>
-
         </div>
     );
 }

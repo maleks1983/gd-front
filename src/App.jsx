@@ -44,8 +44,8 @@ function App() {
                         </PrivateRoute>
                     }
                 />
-                <Route path="login" element={<Login/>}/>
             </Route>
+            <Route path="/login" element={<Login/>}/>
         </Routes>
     );
 }

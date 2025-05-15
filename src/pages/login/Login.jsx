@@ -1,9 +1,10 @@
-import { useNavigate } from 'react-router-dom';
-import { useUser } from "../../hooks/useUser.js";
-import { loginUser, fetchCurrentUser } from "../../services/authService.js";
+import {useNavigate} from 'react-router-dom';
+import {useUser} from "../../hooks/useUser.js";
+import {loginUser} from "../../services/authService.js";
+import {fetchCurrentUser} from "../../services/api/userService.js";
 
 function Login() {
-    const { setUser } = useUser();
+    const {setUser} = useUser();
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -13,21 +14,15 @@ function Login() {
         const password = e.target.password.value;
 
         try {
-            const loginRes = await loginUser({ tel, password });
-
-            if (!loginRes.ok) {
-                alert("Невірний телефон або пароль");
-                return;
-            }
-
+            await loginUser({tel, password});
             const user = await fetchCurrentUser();
             setUser(user);
             navigate('/');
-
-        } catch (error) {
-            alert(error.message);
+        } catch (e) {
+            alert(e.message);
         }
     };
+
 
     return (
         <div className="d-flex justify-content-center align-items-center h-100">
@@ -51,7 +46,7 @@ function Login() {
                     </div>
                     <div className="mb-3">
                         <label htmlFor="password" className="form-label">Пароль</label>
-                        <input type="password" className="form-control" id="password" name="password" required />
+                        <input type="password" className="form-control" id="password" name="password" required/>
                     </div>
                     <button type="submit" className="btn btn-primary w-100">Увійти</button>
                 </form>

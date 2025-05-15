@@ -1,4 +1,4 @@
-import {operationList} from "../../constants/initialBatch.js";
+import {operationList} from "../../constants/InitialBatch.js";
 
 function OperationsBatch({batch, setBatch}) {
 

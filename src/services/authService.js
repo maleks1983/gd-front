@@ -1,33 +1,39 @@
-export async function loginUser({ tel, password }) {
+import {getCsrfToken, getHeaders} from "./appService.js";
+
+
+export async function loginUser({tel, password}) {
     const formData = new FormData();
-    formData.append('username', tel); // сервер очікує "username"
+    formData.append('username', tel);
     formData.append('password', password);
 
-    return await fetch('/login', {
+    const res = await fetch('http://localhost:8080/login', {
         method: 'POST',
         body: formData,
-        credentials: 'include',
-    });
-}
-
-export async function fetchCurrentUser() {
-    const res = await fetch('/api/me', {
-        credentials: 'include',
-        headers: {
-            Accept: 'application/json',
-        },
+        credentials: 'include'
     });
 
-    if (!res.ok) throw new Error('Не вдалося отримати користувача');
-    return res.json();
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || 'Логін не вдався');
+    }
+
+    return true;
 }
+
 
 export async function logoutUser() {
+    const token = getCsrfToken();
+    if (!token) throw new Error("CSRF-токен відсутній");
+
     const res = await fetch('/logout', {
         method: 'POST',
-        credentials: 'include',
+        headers: getHeaders(),
+        credentials: 'include'
     });
 
-    if (!res.ok) throw new Error('Вихід не вдався');
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || 'Вихід не вдався');
+    }
 }
 
