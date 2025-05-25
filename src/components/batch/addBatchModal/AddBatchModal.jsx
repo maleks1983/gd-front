@@ -1,10 +1,26 @@
 // AddBatchModal.jsx
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import InputQuantityBatch from "./InputQuantityBatch.jsx";
 import FirmwaresBatch from "./FirmwaresBatch.jsx";
 import OperationsBatch from "./OperationsBatch.jsx";
+import * as batchService from "../../../services/api/batchService.js";
 
-function AddBatchModal({show, onClose, onSubmit, batch, setBatch}) {
+const initialBatch = {
+    id: "",
+    ranges: [{start: "", end: ""}],
+    quantity: "",
+    firmware: "fw-001",
+    operations: [1, 2],
+}
+
+function AddBatchModal({show, onClose, onRefresh, initialBatchData, setPreloadedBatch}) {
+
+    const getInitialBatch = () => {
+        return initialBatchData || initialBatch;
+    };
+
+    const [batch, setBatch] = useState(getInitialBatch);
+
     useEffect(() => {
         const handleEsc = (e) => {
             if (e.key === "Escape") onClose();
@@ -13,6 +29,12 @@ function AddBatchModal({show, onClose, onSubmit, batch, setBatch}) {
         return () => document.removeEventListener("keydown", handleEsc);
     }, [onClose]);
 
+    useEffect(() => {
+        if (show) {
+            setBatch(getInitialBatch());
+        }
+    }, [show, initialBatchData]);
+
     if (!show) return null;
 
     const isQuantityMismatch = () => {
@@ -20,9 +42,22 @@ function AddBatchModal({show, onClose, onSubmit, batch, setBatch}) {
             const diff = Number(r.end) - Number(r.start) + 1;
             return sum + (isNaN(diff) || diff < 0 ? 0 : diff);
         }, 0);
-
         return Number(batch.quantity) !== total;
     };
+
+    const handleAddBatchSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            await batchService.saveBatch(batch);
+            onClose();
+            setPreloadedBatch(initialBatch);
+            setBatch(initialBatch);
+            onRefresh();
+        } catch (e) {
+            console.error("Помилка при додаванні партії:", e);
+        }
+    };
+
 
     return (
         <>
@@ -34,9 +69,9 @@ function AddBatchModal({show, onClose, onSubmit, batch, setBatch}) {
                 style={{backgroundColor: "rgba(0, 0, 0, 0.3)"}}>
                 <div className="modal-dialog">
                     <div className="modal-content">
-                        <form onSubmit={onSubmit}>
+                        <form onSubmit={handleAddBatchSubmit}>
                             <div className="modal-header">
-                                <h5 className="modal-title">Нова партія</h5>
+                                <h5 className="modal-title">{batch.id === "" ? "Нова партія" : `Партія: ${batch.id}`}</h5>
                                 <button
                                     type="button"
                                     className="btn-close"
@@ -51,6 +86,7 @@ function AddBatchModal({show, onClose, onSubmit, batch, setBatch}) {
                                     <input
                                         type="number"
                                         className="form-control"
+                                        disabled={batch.id !== ""}
                                         value={batch.quantity}
                                         onChange={(e) =>
                                             setBatch({

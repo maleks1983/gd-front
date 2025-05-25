@@ -6,7 +6,7 @@ export async function loginUser({tel, password}) {
     formData.append('username', tel);
     formData.append('password', password);
 
-    const res = await fetch('http://localhost:8080/login', {
+    const res = await fetch('/login', {
         method: 'POST',
         body: formData,
         credentials: 'include'

@@ -70,8 +70,10 @@ function FindBatchInput({ onSearchResult }) {
 
     return (
         <div className="position-relative ms-auto me-3">
+
             <div className="input-group">
                 <span className="input-group-text">DG</span>
+
                 <input
                     type="text"
                     className="form-control pe-4 rounded-end-2 z-1"

@@ -1,8 +1,12 @@
 import { Link } from "react-router-dom";
 import SidebarItem from "./SidebarItem";
 import SidebarItemNested from "./SidebarItemNested";
+import BatchItem from "./batchItem/BatchItem.jsx";
+import ProductItem from "./productItem/ProductItem.jsx";
 
 function SidebarHome() {
+
+
     return (
         <div className="flex-shrink-0 p-3 bg-white border-end">
             <Link
@@ -13,22 +17,8 @@ function SidebarHome() {
             </Link>
 
             <ul className="list-unstyled ps-0">
-                <SidebarItem
-                    label="Партії"
-                    items={[
-                        { label: "Створити" },
-                        { label: "Змінити" },
-                        { label: "Видалити" },
-                    ]}
-                />
-
-                <SidebarItem
-                    label="Платки"
-                    items={[
-                        { label: "Замінити" },
-                        { label: "Видалити" },
-                    ]}
-                />
+                <BatchItem/>
+                <ProductItem/>
 
                 <SidebarItem
                     label="Операції"

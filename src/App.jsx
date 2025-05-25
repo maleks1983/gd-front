@@ -9,6 +9,7 @@ import PrivateRoute from './components/PrivateRoute/PrivateRoute.jsx';
 import Login from "./pages/login/Login.jsx";
 import {useUser} from "./hooks/useUser.js";
 import Layout from "./layout/Layout.jsx";
+import {ToastContainer} from "react-toastify";
 
 function App() {
     const {setUser, setLoading} = useUser();
@@ -41,6 +42,7 @@ function App() {
                     element={
                         <PrivateRoute>
                             <Home/>
+                            <ToastContainer position="top-center" autoClose={1500} />
                         </PrivateRoute>
                     }
                 />

@@ -1,22 +1,31 @@
 import {getHeaders} from "../appService.js";
 
 
-export async function createBatchService(batch) {
+export async function saveBatch(batch) {
+    try {
+        if (batch.id !== "") {
+            await updateBatch(batch.id , batch);
+        } else await createBatch(batch);
+    } catch (err) {
+        console.error(err);
+    }
+
+}
+
+async function createBatch(batch) {
     const response = await fetch("/api/batch", {
         method: "POST",
         headers: getHeaders(),
         body: JSON.stringify(batch),
         credentials: 'include'
     });
-
     if (!response.ok) {
         throw new Error("Помилка при збереженні партії");
     }
-
 }
 
-export async function updateBatchService(batch) {
-    const response = await fetch("/api/batch", {
+async function updateBatch(id, batch) {
+    const response = await fetch(`/api/batch/${id}`, {
         method: "PUT",
         headers: getHeaders(),
         body: JSON.stringify(batch),
@@ -30,7 +39,8 @@ export async function updateBatchService(batch) {
     return await response.json();
 }
 
-export async function deleteBatchService(batchId) {
+
+export async function deleteBatch(batchId) {
     const headers = getHeaders();
     const response = await fetch(`/api/batch/${batchId}`, {
         headers: headers,
@@ -65,6 +75,28 @@ export async function getAllByPage(size, page) {
 export async function getBatchByProductSerial(serial) {
     try {
         const response = await fetch(`/api/batch/by-product/${serial}`, {
+            method: "GET",
+            headers: {
+                'Accept': 'application/json'
+            },
+            credentials: 'include'
+        });
+
+        if (!response.ok) {
+            console.warn("Партію не знайдено");
+            return null;
+        }
+
+        return await response.json();
+    } catch (e) {
+        console.error("Помилка:", e);
+        throw e;
+    }
+}
+
+export async function getBatchById(id) {
+    try {
+        const response = await fetch(`/api/batch/${id}`, {
             method: "GET",
             headers: {
                 'Accept': 'application/json'

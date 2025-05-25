@@ -1,14 +1,11 @@
 function TableReport({
                          filteredData,
                          onRowClick,
-                         onDeleteBatch
                      }) {
 
     const setStatus = () => {
         return "Прошивка";
     };
-
-
 
 
     return (

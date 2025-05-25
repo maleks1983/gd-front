@@ -1,16 +1,32 @@
 import {getHeaders} from "../appService.js";
 
 
-
-export async function updateProductService(productId) {
-    const headers = getHeaders();
+export async function UpdateProduct(serial, newSerial) {
     const response = await fetch("/api/products", {
         method: "PUT",
-        headers: headers,
-        body: JSON.stringify(productId),
+        headers: getHeaders(),
+        body: JSON.stringify({
+            oldSerial: serial,
+            newSerial: newSerial
+        }),
         credentials: 'include'
     });
 
+    if (!response.ok) {
+        throw new Error("Помилка при зміні серійного платки");
+    }
+
+    return await response.json();
+}
+
+
+export async function FindProductBySerial(serial) {
+
+    const response = await fetch(`/api/products/${serial}`, {
+        method: "GET",
+        headers: getHeaders(),
+        credentials: 'include'
+    })
     if (!response.ok) {
         throw new Error("Помилка при збереженні партії");
     }
@@ -18,9 +34,39 @@ export async function updateProductService(productId) {
     return await response.json();
 }
 
-export async function deleteProductBySerial(productId) {
+export async function SaveProduct(product) {
     const headers = getHeaders();
-    const response = await fetch(`/api/products/${productId}`, {
+
+    const response = await fetch("/api/products", {
+        method: "POST",
+        headers,
+        body: JSON.stringify(product),
+        credentials: 'include'
+    });
+
+    if (!response.ok) {
+        // Спроба отримати повідомлення помилки з сервера
+        let errorMessage = "Помилка при збереженні платки";
+
+        try {
+            const errorData = await response.json();
+            if (errorData.message) {
+                errorMessage = errorData.message;
+            }
+        } catch {
+            // Нічого не робимо, якщо не JSON
+        }
+
+        throw new Error(errorMessage);
+    }
+
+    return await response.json();
+}
+
+
+export async function deleteProductBySerial(serial) {
+    const headers = getHeaders();
+    const response = await fetch(`/api/products/${serial}`, {
         headers: headers,
         method: "DELETE",
         credentials: 'include'

@@ -1,7 +1,6 @@
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import {useState} from "react";
 
-function SidebarItem({ label, items = [] }) {
+function SidebarItem({label, items = []}) {
     const [open, setOpen] = useState(false);
 
     return (
@@ -16,9 +15,13 @@ function SidebarItem({ label, items = [] }) {
                 <ul className="btn-toggle-nav list-unstyled fw-normal pb-1">
                     {items.map((item, i) => (
                         <li key={i}>
-                            <Link to={item.to || "#"} className="link-dark d-block px-3">
+                            <button
+                                className="accordion-button d-block px-4"
+                                onClick={() => {
+                                }}
+                            >
                                 {item.label}
-                            </Link>
+                            </button>
                         </li>
                     ))}
                 </ul>
